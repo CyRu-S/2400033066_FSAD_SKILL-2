@@ -20,7 +20,7 @@ public class ProductDAO {
     }
 
     // Get product by ID
-    public Product getProduct(Long id) {
+    public Product getProduct(int id) {
         Session session = HibernateUtil.getSessionFactory().openSession();
 
         Product product = session.get(Product.class, id);
@@ -30,7 +30,7 @@ public class ProductDAO {
     }
 
     // Update product
-    public void updateProduct(Long id, double price, int quantity) {
+    public void updateProduct(int id, double price, int quantity) {
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
 
@@ -47,7 +47,7 @@ public class ProductDAO {
     }
 
     // Delete product
-    public void deleteProduct(Long id) {
+    public void deleteProduct(int id) {
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
 

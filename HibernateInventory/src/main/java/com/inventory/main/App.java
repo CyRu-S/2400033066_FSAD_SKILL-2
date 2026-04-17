@@ -18,9 +18,9 @@ public class App {
         dao.saveProduct(p2);
 
         // Update product
-        dao.updateProduct(1L, 72000, 8);
+        dao.updateProduct(1, 72000, 8);
 
         // Delete product
-        dao.deleteProduct(2L);
+        dao.deleteProduct(2);
     }
 }

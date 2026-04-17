@@ -12,267 +12,127 @@ import com.inventory.util.HibernateUtil;
 
 public class HQLDemo {
 
-    public static void main(String[] args) {
+        public static void main(String[] args) {
 
-        SessionFactory factory = HibernateUtil.getSessionFactory();
-        Session session = factory.openSession();
+                SessionFactory factory = HibernateUtil.getSessionFactory();
+                Session session = factory.openSession();
 
-        // Run only once to insert data
-        // ProductDataLoader.loadSampleProducts(session);
-       // ProductDataLoader.loadSampleProducts(session);
+                try {
 
-        // Sorting
-        sortProductsByPriceAscending(session);
-        sortProductsByPriceDescending(session);
-        sortProductsByQuantity(session);
+                        // Insert sample data
+                        ProductDataLoader.loadSampleProducts(session);
 
-        // Pagination
-        getFirstThreeProducts(session);
-        getNextThreeProducts(session);
+                        sortProductsByPriceAscending(session);
+                        sortProductsByPriceDescending(session);
+                        sortProductsByQuantityDescending(session);
 
-        // Aggregates
-        countTotalProducts(session);
-        countProductsInStock(session);
-        countProductsByDescription(session);
-        findMinMaxPrice(session);
+                        getFirstThreeProducts(session);
+                        getNextThreeProducts(session);
 
-        // Filtering
-        findProductsBetweenPrice(session,20,100);
+                        countTotalProducts(session);
+                        countProductsInStock(session);
 
-        // LIKE Queries
-        findProductsStartingWith(session,"D");
-        findProductsEndingWith(session,"p");
-        findProductsContaining(session,"Desk");
-
-        session.close();
-        factory.close();
-    }
-
-    // Sort by price ASC
-    public static void sortProductsByPriceAscending(Session session) {
-
-        String hql = "FROM Product p ORDER BY p.price ASC";
-
-        Query<Product> query = session.createQuery(hql, Product.class);
-
-        List<Product> list = query.list();
-
-        System.out.println("\nProducts by Price ASC");
-
-        for(Product p : list)
-        {
-            System.out.println(p.getName()+" - "+p.getPrice());
+                } finally {
+                        session.close();
+                        factory.close();
+                }
         }
-    }
 
-    // Sort by price DESC
-    public static void sortProductsByPriceDescending(Session session) {
+        // Sort by price ASC
+        public static void sortProductsByPriceAscending(Session session) {
 
-        String hql = "FROM Product p ORDER BY p.price DESC";
+                String hql = "FROM Product p ORDER BY p.price ASC";
+                Query<Product> query = session.createQuery(hql, Product.class);
 
-        Query<Product> query = session.createQuery(hql, Product.class);
+                List<Product> products = query.list();
 
-        List<Product> list = query.list();
-
-        System.out.println("\nProducts by Price DESC");
-
-        for(Product p : list)
-        {
-            System.out.println(p.getName()+" - "+p.getPrice());
+                System.out.println("Products sorted by price ASC:");
+                for (Product p : products) {
+                        System.out.println(p);
+                }
         }
-    }
 
-    // Sort by quantity
-    public static void sortProductsByQuantity(Session session) {
+        // Sort by price DESC
+        public static void sortProductsByPriceDescending(Session session) {
 
-        String hql = "FROM Product p ORDER BY p.quantity DESC";
+                String hql = "FROM Product p ORDER BY p.price DESC";
+                Query<Product> query = session.createQuery(hql, Product.class);
 
-        Query<Product> query = session.createQuery(hql, Product.class);
+                List<Product> products = query.list();
 
-        List<Product> list = query.list();
-
-        System.out.println("\nProducts by Quantity");
-
-        for(Product p : list)
-        {
-            System.out.println(p.getName()+" - "+p.getQuantity());
+                System.out.println("Products sorted by price DESC:");
+                for (Product p : products) {
+                        System.out.println(p);
+                }
         }
-    }
 
-    // Pagination first 3
-    public static void getFirstThreeProducts(Session session) {
+        // Sort by quantity
+        public static void sortProductsByQuantityDescending(Session session) {
 
-        String hql="FROM Product";
+                String hql = "FROM Product p ORDER BY p.quantity DESC";
+                Query<Product> query = session.createQuery(hql, Product.class);
 
-        Query<Product> query=session.createQuery(hql,Product.class);
+                List<Product> products = query.list();
 
-        query.setFirstResult(0);
-        query.setMaxResults(3);
-
-        List<Product> list=query.list();
-
-        System.out.println("\nFirst 3 Products");
-
-        for(Product p:list)
-        {
-            System.out.println(p.getName());
+                System.out.println("Products sorted by quantity:");
+                for (Product p : products) {
+                        System.out.println(p.getName() + " - " + p.getQuantity());
+                }
         }
-    }
 
-    // Pagination next 3
-    public static void getNextThreeProducts(Session session) {
+        // Pagination first 3
+        public static void getFirstThreeProducts(Session session) {
 
-        String hql="FROM Product";
+                String hql = "FROM Product p";
+                Query<Product> query = session.createQuery(hql, Product.class);
 
-        Query<Product> query=session.createQuery(hql,Product.class);
+                query.setFirstResult(0);
+                query.setMaxResults(3);
 
-        query.setFirstResult(3);
-        query.setMaxResults(3);
+                List<Product> products = query.list();
 
-        List<Product> list=query.list();
-
-        System.out.println("\nNext 3 Products");
-
-        for(Product p:list)
-        {
-            System.out.println(p.getName());
+                System.out.println("First 3 products:");
+                for (Product p : products) {
+                        System.out.println(p);
+                }
         }
-    }
 
-    // Count total products
-    public static void countTotalProducts(Session session) {
+        // Pagination next 3
+        public static void getNextThreeProducts(Session session) {
 
-        String hql="SELECT COUNT(p) FROM Product p";
+                String hql = "FROM Product p";
+                Query<Product> query = session.createQuery(hql, Product.class);
 
-        Query<Long> query=session.createQuery(hql,Long.class);
+                query.setFirstResult(3);
+                query.setMaxResults(3);
 
-        Long count=query.uniqueResult();
+                List<Product> products = query.list();
 
-        System.out.println("\nTotal Products = "+count);
-    }
-
-    // Count products in stock
-    public static void countProductsInStock(Session session) {
-
-        String hql="SELECT COUNT(p) FROM Product p WHERE p.quantity > 0";
-
-        Query<Long> query=session.createQuery(hql,Long.class);
-
-        Long count=query.uniqueResult();
-
-        System.out.println("\nProducts In Stock = "+count);
-    }
-
-    // Group by description
-    public static void countProductsByDescription(Session session) {
-
-        String hql="SELECT p.description, COUNT(p) FROM Product p GROUP BY p.description";
-
-        Query<Object[]> query=session.createQuery(hql,Object[].class);
-
-        List<Object[]> list=query.list();
-
-        System.out.println("\nProducts by Category");
-
-        for(Object[] row:list)
-        {
-            String desc=(String)row[0];
-            Long count=(Long)row[1];
-
-            System.out.println(desc+" : "+count);
+                System.out.println("Next 3 products:");
+                for (Product p : products) {
+                        System.out.println(p);
+                }
         }
-    }
 
-    // Min and Max price
-    public static void findMinMaxPrice(Session session) {
+        // Count all products
+        public static void countTotalProducts(Session session) {
 
-        String hql="SELECT MIN(p.price), MAX(p.price) FROM Product p";
+                String hql = "SELECT COUNT(p) FROM Product p";
+                Query<Long> query = session.createQuery(hql, Long.class);
 
-        Query<Object[]> query=session.createQuery(hql,Object[].class);
+                Long count = query.uniqueResult();
 
-        Object[] result=query.uniqueResult();
-
-        Double min=(Double)result[0];
-        Double max=(Double)result[1];
-
-        System.out.println("\nMinimum Price = "+min);
-        System.out.println("Maximum Price = "+max);
-    }
-
-    // Price range filter
-    public static void findProductsBetweenPrice(Session session,double min,double max) {
-
-        String hql="FROM Product p WHERE p.price BETWEEN :min AND :max";
-
-        Query<Product> query=session.createQuery(hql,Product.class);
-
-        query.setParameter("min",min);
-        query.setParameter("max",max);
-
-        List<Product> list=query.list();
-
-        System.out.println("\nProducts between "+min+" and "+max);
-
-        for(Product p:list)
-        {
-            System.out.println(p.getName()+" - "+p.getPrice());
+                System.out.println("Total products: " + count);
         }
-    }
 
-    // Names starting with
-    public static void findProductsStartingWith(Session session,String prefix) {
+        // Count products with quantity > 0
+        public static void countProductsInStock(Session session) {
 
-        String hql="FROM Product p WHERE p.name LIKE :pattern";
+                String hql = "SELECT COUNT(p) FROM Product p WHERE p.quantity > 0";
+                Query<Long> query = session.createQuery(hql, Long.class);
 
-        Query<Product> query=session.createQuery(hql,Product.class);
+                Long count = query.uniqueResult();
 
-        query.setParameter("pattern",prefix+"%");
-
-        List<Product> list=query.list();
-
-        System.out.println("\nProducts starting with "+prefix);
-
-        for(Product p:list)
-        {
-            System.out.println(p.getName());
+                System.out.println("Products in stock: " + count);
         }
-    }
-
-    // Names ending with
-    public static void findProductsEndingWith(Session session,String suffix) {
-
-        String hql="FROM Product p WHERE p.name LIKE :pattern";
-
-        Query<Product> query=session.createQuery(hql,Product.class);
-
-        query.setParameter("pattern","%"+suffix);
-
-        List<Product> list=query.list();
-
-        System.out.println("\nProducts ending with "+suffix);
-
-        for(Product p:list)
-        {
-            System.out.println(p.getName());
-        }
-    }
-
-    // Names containing
-    public static void findProductsContaining(Session session,String text) {
-
-        String hql="FROM Product p WHERE p.name LIKE :pattern";
-
-        Query<Product> query=session.createQuery(hql,Product.class);
-
-        query.setParameter("pattern","%"+text+"%");
-
-        List<Product> list=query.list();
-
-        System.out.println("\nProducts containing "+text);
-
-        for(Product p:list)
-        {
-            System.out.println(p.getName());
-        }
-    }
 }
